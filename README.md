@@ -10,4 +10,4 @@ In brief, those requirements are to pull in a single 'result' from each device a
 
 It would seem that the Beurer devices are not really designed for this. For example, the PO60 transmits up to 10 'results' at a time. The data structure returned is larger than the BLE standard 20 byte array, which alings with the Javascript Uint8Array.
 
-Currently developing an environment that obviates the need to associate with the PO60 Bluetooth device on each invocation.
+This is a placeholder for publicly shared code
