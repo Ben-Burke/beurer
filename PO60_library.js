@@ -126,6 +126,51 @@ function debugPrint(message) {
   }
 }
 
+async function DoEverything() {
+  try {
+    // clear all the text boxes
+    document.getElementById('minSpo02').value = '';
+    document.getElementById('maxSpo02').value = '';
+    document.getElementById('avgSpo02').value = '';
+    document.getElementById('minPulseRate').value = '';
+    document.getElementById('maxPulseRate').value = '';
+    document.getElementById('avgPulseRate').value = '';
+
+    await pO.request();
+    await pO.connect();
+    debugPrint('Connected to Device. Starting notifications for 0xFF02.');
+    await pO.startCustomServiceNotifications(pO.listener);
+    debugPrint('Pressing Doorbell...');
+    await pO.writeCustomService(doorbell);
+    debugPrint('Doorbell Pressed. Waiting for data...');
+    await pO.readCustomService();
+    debugPrint('Custom Service read.. Deleting the first record...');
+    await pO.writeCustomService(deleteRecordCMD);
+    debugPrint('Data read. Sending command for next packet');
+    await pO.writeCustomService(deleteRecordCMD);
+    debugPrint('Record deleted. Sending Next packet...');
+
+    await pO.writeCustomService(nextPacket);
+    debugPrint('Next packet sent. Deleting the record...');
+    await pO.writeCustomService(deleteRecordCMD);
+
+    console.log('End of Steps. Stopping Notifications...');
+    await pO.stopCustomServiceNotifications(pO.listener);
+    console.log('Notifications Stopped. Disconnecting...');
+    await pO.disconnect();
+    console.log('Disconnected.');
+     // populate the text boxes minSpo02, maxSpo02, avgSpo02, minPulseRate, maxPulseRate, avgPulseRate
+     document.getElementById('minSpo02').value = minSpo02;
+     document.getElementById('maxSpo02').value = maxSpo02;
+     document.getElementById('avgSpo02').value = avgSpo02;
+     document.getElementById('minPulseRate').value = minPulseRate;
+     document.getElementById('maxPulseRate').value = maxPulseRate;
+     document.getElementById('avgPulseRate').value = avgPulseRate;
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
 // This function calculates the checksum for a PO60 packet
 // The checksum is calculated by adding all the bytes in the packet (including the header) and then returning the lowest 7 bits of the
 // result
@@ -149,18 +194,23 @@ function DecodeNotificationMessageType(ResultArray) {
         countOfStaleResults = ResultArray[2];
         console.log('Count of Stale Results: ' + countOfStaleResults);
         break;
-      case 0x99:
-        // code for message type 0x99
-        console.log('Message Type: Get Results');
-        break;
+      case 0xe9:
+          console.log('Message Type: Results Block Data');
+          maxSpo02 = ResultArray[17];
+          minSpo02 = ResultArray[18];
+          avgSpo02 = ResultArray[19];
+          break;
       default:
         // code for unknown message type
-        console.log('Unknown Message Type: ' + messageType.toString(16));
+        if ( ResultArray.length == 4) {
+            console.log('Message Type: Final Bytes');
+            maxPulseRate = ResultArray[0];
+            minPulseRate = ResultArray[1];
+            avgPulseRate = ResultArray[2];        
+        }  else {
+            console.log('Unknown Message Type: ' + messageType.toString(16));
+        }
     }
 
-    let messageLength = ResultArray[1];
-    let messageData = ResultArray.slice(2, messageLength + 2);
-    console.log('Message Type: ' + messageType.toString(16));
-    console.log('Message Length: ' + messageLength);
-    console.log('Message Data: ' + messageData);
   }
+

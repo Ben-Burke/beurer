@@ -1,0 +1,51 @@
+<button id="Everything">Do All Actions</button>
+
+<div>
+  <label for="minSpo02">Minimum Spo02:</label>
+  <input type="text" id="minSpo02" />
+</div>
+<div>
+  <label for="maxSpo02">Maximum Spo02:</label>
+  <input type="text" id="maxSpo02" />
+</div>
+<div>
+  <label for="avgSpo02">Average Spo02:</label>
+  <input type="text" id="avgSpo02" />
+</div>
+<div>
+  <label for="minPulseRate">Minimum Pulse Rate:</label>
+  <input type="text" id="minPulseRate" />
+</div>
+<div>
+  <label for="maxPulseRate">Maximum Pulse Rate:</label>
+  <input type="text" id="maxPulseRate" />
+</div>
+<div>
+  <label for="avgPulseRate">Average Pulse Rate:</label>
+  <input type="text" id="avgPulseRate" />
+</div>
+
+
+<script src="./PO60_library.js"> </script>
+
+
+<script>
+
+
+let pO = new PO();
+
+
+  document.querySelector('#Everything').addEventListener('click', async event => {
+    try {
+     
+
+      DoEverything();
+
+      /* Do something with pO... */
+    } catch(error) {
+      console.log(error);
+    }
+  });
+
+
+</script>
